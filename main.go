@@ -1,10 +1,12 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"os"
 	"strconv"
 
+	_ "github.com/mattn/go-sqlite3"
 	"gopkg.in/telegram-bot-api.v4"
 )
 
@@ -57,5 +59,56 @@ func notify(bot *tgbotapi.BotAPI) {
 	}
 
 	msg := tgbotapi.NewMessage(id, "Hello")
-	bot.Send(msg)
+	message, err := bot.Send(msg)
+	if err != nil {
+		log.Println("failed to send message")
+		return
+	}
+
+	bot.PinChatMessage(tgbotapi.PinChatMessageConfig{
+		ChatID:              id,
+		DisableNotification: true,
+		MessageID:           message.MessageID,
+	})
+}
+
+func initialize() {
+	os.Remove("./data.db")
+
+	db, err := sql.Open("sqlite3", "./data.db")
+	if err != nil {
+		log.Fatalf("failed to open a DB connect: %s", err)
+	}
+
+	defer db.Close()
+
+	creationQuery := `
+CREATE TABLE autoposts(
+id integer not null primary key,
+chatid BIGINT not null,
+type TEXT 
+)
+`
+	_, err = db.Exec(creationQuery)
+	if err != nil {
+		log.Printf("%q: %s\n", err, creationQuery)
+		return
+	}
+
+	insertQuery := `
+INSERT INTO autoposts (chatid, type) VALUES (?, ?)
+`
+
+	res, err := db.Exec(insertQuery, 123, "regular")
+	if err != nil {
+		log.Printf("%q: %s\n", err, insertQuery)
+		return
+	}
+	insertId, err := res.LastInsertId()
+	if err != nil {
+		log.Printf("%s\n", err)
+		return
+	}
+
+	log.Printf("Result: %v", insertId)
 }
