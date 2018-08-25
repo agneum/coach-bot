@@ -83,32 +83,29 @@ func initialize() {
 	defer db.Close()
 
 	creationQuery := `
-CREATE TABLE autoposts(
-id integer not null primary key,
-chatid BIGINT not null,
-type TEXT 
-)
+CREATE TABLE autopost_plans(
+id integer not null primary key AUTOINCREMENT,
+chatid BIGINT NOT NULL,
+type VARCHAR(16) NOT NULL,
+texttemplate TEXT DEFAULT '',
+lastscheduled TIMESTAMP,
+intervals TEXT NOT NULL,
+startdate TIMESTAMP NOT NULL,
+enddate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+isactive integer NOT NULL DEFAULT 0
+);
+
+CREATE TABLE scheduled_posts (
+	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	chatid BIGINT NOT NULL,
+	senddate TIMESTAMP NOT NULL,
+	message TEXT NOT NULL,
+	done INTEGER NOT NULL DEFAULT 0
+);
 `
 	_, err = db.Exec(creationQuery)
 	if err != nil {
 		log.Printf("%q: %s\n", err, creationQuery)
 		return
 	}
-
-	insertQuery := `
-INSERT INTO autoposts (chatid, type) VALUES (?, ?)
-`
-
-	res, err := db.Exec(insertQuery, 123, "regular")
-	if err != nil {
-		log.Printf("%q: %s\n", err, insertQuery)
-		return
-	}
-	insertId, err := res.LastInsertId()
-	if err != nil {
-		log.Printf("%s\n", err)
-		return
-	}
-
-	log.Printf("Result: %v", insertId)
 }
