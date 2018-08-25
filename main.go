@@ -2,11 +2,13 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/robfig/cron"
 	"gopkg.in/telegram-bot-api.v4"
 )
 
@@ -16,6 +18,17 @@ func main() {
 		log.Println("Token cannot be empty")
 		return
 	}
+
+	cronJob := cron.New()
+	err := cronJob.AddFunc("0 0 0 * * 1", schedulePosts)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	err = cronJob.AddFunc("0 10 * * * *", checkScheduledPosts)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	cronJob.Start()
 
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
@@ -108,4 +121,12 @@ CREATE TABLE scheduled_posts (
 		log.Printf("%q: %s\n", err, creationQuery)
 		return
 	}
+}
+
+func schedulePosts() {
+	fmt.Println("Schedule posts")
+}
+
+func checkScheduledPosts() {
+	fmt.Println("Check scheduled posts")
 }
