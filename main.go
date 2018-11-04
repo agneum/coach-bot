@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	var token = os.Getenv("TG_TOKEN")
+	token := os.Getenv("TG_TOKEN")
 	if token == "" {
 		log.Println("Token cannot be empty")
 		return
@@ -59,13 +59,13 @@ func main() {
 }
 
 func notify(bot *tgbotapi.BotAPI) {
-	var chatId = os.Getenv("CHAT_ID")
-	if chatId == "" {
+	chatID := os.Getenv("CHAT_ID")
+	if chatID == "" {
 		log.Println("CHAT_ID cannot be empty")
 		return
 	}
 
-	id, err := strconv.ParseInt(chatId, 10, 64)
+	id, err := strconv.ParseInt(chatID, 10, 64)
 	if err != nil {
 		log.Println("CHAT_ID cannot be empty")
 		return
