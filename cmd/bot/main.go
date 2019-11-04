@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -83,44 +82,6 @@ func notify(bot *tgbotapi.BotAPI) {
 		DisableNotification: true,
 		MessageID:           message.MessageID,
 	})
-}
-
-func initialize() {
-	os.Remove("./data.db")
-
-	db, err := sql.Open("sqlite3", "./data.db")
-	if err != nil {
-		log.Fatalf("failed to open a DB connect: %s", err)
-	}
-
-	defer db.Close()
-
-	creationQuery := `
-CREATE TABLE autopost_plans(
-id integer not null primary key AUTOINCREMENT,
-chatid BIGINT NOT NULL,
-type VARCHAR(16) NOT NULL,
-texttemplate TEXT DEFAULT '',
-lastscheduled TIMESTAMP,
-intervals TEXT NOT NULL,
-startdate TIMESTAMP NOT NULL,
-enddate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-isactive integer NOT NULL DEFAULT 0
-);
-
-CREATE TABLE scheduled_posts (
-	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	chatid BIGINT NOT NULL,
-	senddate TIMESTAMP NOT NULL,
-	message TEXT NOT NULL,
-	done INTEGER NOT NULL DEFAULT 0
-);
-`
-	_, err = db.Exec(creationQuery)
-	if err != nil {
-		log.Printf("%q: %s\n", err, creationQuery)
-		return
-	}
 }
 
 func schedulePosts() {
