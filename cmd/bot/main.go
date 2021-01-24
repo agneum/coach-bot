@@ -8,7 +8,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/robfig/cron"
-	"gopkg.in/telegram-bot-api.v4"
+	tgbotapi "gopkg.in/telegram-bot-api.v4"
 )
 
 func main() {
@@ -19,12 +19,12 @@ func main() {
 	}
 
 	cronJob := cron.New()
-	err := cronJob.AddFunc("0 0 0 * * 1", schedulePosts)
-	if err != nil {
+
+	if err := cronJob.AddFunc("0 0 0 * * 1", schedulePosts); err != nil {
 		log.Fatalln(err)
 	}
-	err = cronJob.AddFunc("0 10 * * * *", checkScheduledPosts)
-	if err != nil {
+
+	if err := cronJob.AddFunc("0 10 * * * *", checkScheduledPosts); err != nil {
 		log.Fatalln(err)
 	}
 	cronJob.Start()
