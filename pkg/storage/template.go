@@ -15,5 +15,17 @@ func NewTemplateRepo(db *reform.Querier) *TemplateRepo {
 }
 
 func (t *TemplateRepo) GetTemplates() ([]*models.Template, error) {
-	return []*models.Template{}, nil
+	sts, err := t.db.SelectAllFrom(models.TemplateTable, "")
+	if err != nil {
+		return nil, err
+	}
+
+	templates := make([]*models.Template, 0, len(sts))
+
+	for _, st := range sts {
+		template := st.(*models.Template)
+		templates = append(templates, template)
+	}
+
+	return templates, nil
 }
