@@ -10,7 +10,7 @@ import (
 //reform:user
 type User struct {
 	ID         int64     `reform:"id,pk" json:"-"`
-	TelegramID string    `reform:"tg_id" json:"-"`
+	TelegramID int       `reform:"tg_id" json:"-"`
 	FirstName  string    `reform:"first_name" json:"first_name"`
 	LastName   string    `reform:"last_name" json:"last_name"`
 	Username   string    `reform:"username" json:"-"`

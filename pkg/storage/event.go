@@ -33,5 +33,6 @@ func (e *EventRepo) GetEvents() ([]*models.Event, error) {
 }
 
 func (e EventRepo) AddEvent(ev *models.Event) error {
+	// on conflict ignore
 	return e.db.Insert(ev)
 }

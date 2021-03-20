@@ -15,6 +15,7 @@ import (
 	tgbotapi "gopkg.in/telegram-bot-api.v4"
 
 	"github.com/agneum/scheduler-bot/internal/scheduler"
+	"github.com/agneum/scheduler-bot/pkg/models"
 	"github.com/agneum/scheduler-bot/pkg/storage"
 )
 
@@ -42,6 +43,7 @@ func main() {
 	db := reform.NewDB(conn, sqlite3.Dialect, nil)
 	templateSvc := storage.NewTemplateRepo(db.Querier)
 	eventSvc := storage.NewEventRepo(db.Querier)
+	userSvc := storage.NewUserRepo(db.Querier)
 
 	schedulerSvc := scheduler.NewScheduler(templateSvc, eventSvc)
 	//if err := schedulerSvc.Schedule(); err != nil {
@@ -86,6 +88,17 @@ func main() {
 
 		switch update.Message.Text {
 		case "/register":
+			if err := userSvc.AddUser(&models.User{
+				TelegramID: update.Message.From.ID,
+				FirstName:  update.Message.From.FirstName,
+				LastName:   update.Message.From.LastName,
+				Username:   update.Message.From.UserName,
+			}); err != nil {
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "failed to create a new user")
+				bot.Send(msg)
+				continue
+			}
+
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "TBD: User has been registered")
 			bot.Send(msg)
 
